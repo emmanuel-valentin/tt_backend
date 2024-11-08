@@ -10,6 +10,8 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
+RUN chmod +x /app/start-server.sh
+
 EXPOSE 8000
 
 ENTRYPOINT ["/app/start-server.sh"]
