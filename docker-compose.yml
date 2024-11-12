@@ -12,6 +12,8 @@ services:
       - PG_DB=postgres
       - PG_HOST=db
       - PG_PORT=5432
+    volumes:
+      - .:/app
     depends_on:
       - db
   db:
