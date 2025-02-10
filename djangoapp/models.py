@@ -4,16 +4,13 @@ from django.contrib.auth.models import User
 class Expediente(models.Model):
     titulo = models.CharField(max_length=45, null=True)
     descripcion = models.TextField(null=True)
+    fecha = models.DateTimeField(null=True)
 
     class Meta:
         db_table = 'Expediente'
 
 class Persona(models.Model):
-    nombre = models.CharField(max_length=45, null=True)
-    apellido_pat = models.CharField(max_length=45, null=True)
-    apellido_mat = models.CharField(max_length=45, null=True)
-    fecha = models.CharField(max_length=45, null=True)
-    direccion = models.CharField(max_length=200, null=True)
+    fecha = models.DateField(null=True)
     nacionalidad = models.CharField(max_length=45, null=True)
     telefono = models.CharField(max_length=45, null=True)
     foto_url = models.CharField(max_length=45, null=True)
@@ -23,20 +20,29 @@ class Persona(models.Model):
         db_table = 'Persona'
 
 class Paciente(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    expediente = models.OneToOneField(Expediente, on_delete=models.CASCADE)
+    persona_id = models.OneToOneField(Persona, on_delete=models.CASCADE, null=True)
     ocupacion = models.CharField(max_length=45, null=True)
 
     class Meta:
         db_table = 'Paciente'
 
 class Fisioterapeuta(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    persona_id = models.OneToOneField(Persona, on_delete=models.CASCADE, null=True)
     cedula = models.CharField(max_length=100, null=True)
     codigo_token = models.CharField(max_length=10, null=True)
 
     class Meta:
         db_table = 'Fisioterapeuta'
+
+class ExpedienteHasPaciente(models.Model):
+    expediente = models.ForeignKey(Expediente, on_delete=models.CASCADE)
+    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
+    fecha_asociacion = models.DateField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'Expediente_Has_Paciente'
+        unique_together = ('expediente', 'paciente')
+
 
 class Estado(models.Model):
     estado = models.CharField(max_length=20, null=True)
