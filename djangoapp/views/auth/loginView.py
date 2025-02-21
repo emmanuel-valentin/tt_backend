@@ -4,25 +4,25 @@ from rest_framework import status, serializers
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.exceptions import ValidationError
 from djangoapp.utils.validations import validate_serializer
+from django.contrib.auth import authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
 
-
-class LogingSerializer(serializers.Serializer):
+class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
-    password = serializers.CharField(required=True)
+    password = serializers.CharField(required=True, write_only=True)
 
 @api_view(['POST'])
-@authentication_classes([])
-@permission_classes([])
 def login(request):
-    serializer = LogingSerializer(data=request.data)
+    serializer = LoginSerializer(data=request.data)
 
     try:
-        data = validate_serializer(serializer)
-        access_token = iniciar_sesion(data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        access_token, refresh_token = iniciar_sesion(data)
 
         if access_token:
             return response_api(
-                data={"message": "Login exitoso", "token": access_token},
+                data={"message": "Login exitoso", "access_token": access_token, "refresh_token": refresh_token},
                 status_code=status.HTTP_200_OK,
                 error="",
             )
@@ -43,7 +43,7 @@ def login(request):
             status="error",
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             error={
-                "message": "Error al crear el usuario, persona, paciente o relacionar el expediente",
+                "message": "Error interno del servidor",
                 "details": str(e)
             }
         )
