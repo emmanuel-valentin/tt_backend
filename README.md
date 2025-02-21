@@ -28,3 +28,6 @@ El estilo arquitectónico REST utiliza HTTP para solicitar acceso y utilizar dat
 
 ## Diagrama ilustrativo
 ![Diagrama de red genérico](https://github.com/user-attachments/assets/3d5095b3-e9dc-41e0-8fcd-7c777b911145)
+
+## Documentación de los endpoints
+https://docs.google.com/document/d/1flyScEiDVKqQVDUTy_64g_H_2hWeATuMSoyoXtfLVOU/edit?usp=sharing

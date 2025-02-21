@@ -20,8 +20,6 @@ class RegisterSerializer(serializers.Serializer):
 
 
 @api_view(['POST'])
-@authentication_classes([])
-@permission_classes([])
 def register(request):
     serializer = RegisterSerializer(data=request.data)
 
