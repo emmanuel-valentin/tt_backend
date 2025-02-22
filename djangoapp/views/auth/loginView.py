@@ -1,4 +1,4 @@
-from djangoapp.services.loginService import iniciar_sesion
+from djangoapp.services.auth.loginService import iniciar_sesion
 from djangoapp.utils.api_response import response_api
 from rest_framework import status, serializers
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
