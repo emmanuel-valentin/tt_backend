@@ -3,7 +3,7 @@ from rest_framework import status, serializers
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.exceptions import ValidationError
 from django.db.utils import IntegrityError  # Importamos IntegrityError
-from djangoapp.services.registerService import crear_usuario
+from djangoapp.services.auth.registerService import crear_usuario
 from djangoapp.utils.validations import validate_serializer
 
 
