@@ -16,7 +16,7 @@ django.setup()
 fake = Faker()
 
 from django.contrib.auth.models import User
-from djangoapp.models import Estado, Persona, Paciente, Fisioterapeuta, Ejercicio, EjercicioAsignado
+from djangoapp.models import Estado, Persona, Paciente, Fisioterapeuta, Ejercicio, EjercicioAsignado, Vinculacion
 
 
 # Función para generar el código token único
@@ -140,3 +140,21 @@ for paciente in pacientes:
             print(f"El ejercicio '{ejercicio.nombre}' ya ha sido asignado al paciente {paciente.persona_id.user.username}")
 
 print("Ejercicios asignados a los pacientes exitosamente")
+
+
+# Asignar pacientes a fisioterapeutas aleatoriamente
+for paciente in pacientes:
+    fisioterapeuta = random.choice(fisioterapeutas)  # Selecciona un fisioterapeuta aleatorio
+
+    # Verificar si ya existe la vinculación
+    if not Vinculacion.objects.filter(fisioterapeuta=fisioterapeuta, paciente=paciente).exists():
+        Vinculacion.objects.create(
+            fisioterapeuta=fisioterapeuta,
+            paciente=paciente,
+            estado="ASIGNADO"
+        )
+        print(f"Paciente {paciente.persona_id.user.username} vinculado con fisioterapeuta {fisioterapeuta.persona_id.user.username}")
+    else:
+        print(f"El paciente {paciente.persona_id.user.username} ya estaba vinculado con {fisioterapeuta.persona_id.user.username}")
+
+print("Vinculaciones creadas exitosamente")

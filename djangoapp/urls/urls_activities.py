@@ -1,6 +1,8 @@
 from django.urls import path
-from djangoapp.views.activities import getActivitiesView
+from djangoapp.views import ActivitiesView
 
 urlpatterns = [
-    path('assigned/<int:id>', getActivitiesView.getActivitiesById, name='getActivitiesById'),
+    path('assignments', ActivitiesView.getActivities, name='getActivities'),
+    path('assign', ActivitiesView.asignarEjercicio, name='asignarEjercicio'),
+    path('assignments/<int:id>', ActivitiesView.getActivitiesById, name='getActivitiesById'),
 ]
