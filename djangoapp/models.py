@@ -11,9 +11,9 @@ class Expediente(models.Model):
 
 class Persona(models.Model):
     fecha = models.DateField(null=True)
-    nacionalidad = models.CharField(max_length=45, null=True)
+    nacionalidad = models.CharField(max_length=100, null=True)
     telefono = models.CharField(max_length=45, null=True)
-    foto_url = models.CharField(max_length=45, null=True)
+    foto_url = models.CharField(max_length=255, null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
 
     class Meta:
@@ -53,6 +53,7 @@ class Estado(models.Model):
 class Ejercicio(models.Model):
     nombre = models.CharField(max_length=45, null=True)
     tipo = models.CharField(max_length=45, null=True)
+    descripcion = models.TextField(null=True)
     url_video = models.URLField(max_length=200, null=True)
 
     class Meta:
@@ -76,7 +77,6 @@ class EjercicioAsignado(models.Model):
 
     class Meta:
         db_table = 'Ejercicio_Asignado'
-        unique_together = ('paciente', 'ejercicio')
 
 class Feedback(models.Model):
     fisioterapeuta = models.ForeignKey(Fisioterapeuta, on_delete=models.CASCADE)
@@ -96,9 +96,9 @@ class FeedbackFisioterapeuta(models.Model):
         unique_together = ('paciente', 'feedback')
 
 class SeguimientoIA(models.Model):
-    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
     feedback_ia = models.TextField(null=True)
     url_video_paciente = models.URLField(max_length=200, null=True)
+    ejercicio_asignado = models.ForeignKey(EjercicioAsignado, on_delete=models.CASCADE, null=True)
 
     class Meta:
         db_table = 'Seguimiento_IA'

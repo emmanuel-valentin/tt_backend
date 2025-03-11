@@ -1,15 +1,10 @@
-from djangoapp.services.loginService import iniciar_sesion
+from djangoapp.services.auth.loginService import iniciar_sesion
 from djangoapp.utils.api_response import response_api
-from rest_framework import status, serializers
-from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework import status
+from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
-from djangoapp.utils.validations import validate_serializer
-from django.contrib.auth import authenticate
-from rest_framework_simplejwt.tokens import RefreshToken
 
-class LoginSerializer(serializers.Serializer):
-    email = serializers.EmailField(required=True)
-    password = serializers.CharField(required=True, write_only=True)
+from djangoapp.serializers.authSerializer import LoginSerializer
 
 @api_view(['POST'])
 def login(request):
