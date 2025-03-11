@@ -1,6 +1,6 @@
-from datetime import timezone
+from django.utils import timezone
 from rest_framework.exceptions import PermissionDenied
-from djangoapp.models import Ejercicio, EjercicioAsignado, Vinculacion, Paciente, Estado
+from djangoapp.models import Ejercicio, EjercicioAsignado, Vinculacion, Paciente, Estado, Fisioterapeuta, SeguimientoIA
 
 
 def checkEjercicioAsignado(id):
@@ -14,9 +14,11 @@ def getEjercicioAsignadoByID(id):
         "id": ejercicio_asignado.ejercicio.id,
         "nombre": ejercicio_asignado.ejercicio.nombre,
         "descripcion": ejercicio_asignado.ejercicio.descripcion,
+        "urlVideo": ejercicio_asignado.ejercicio.url_video,
         "paciente": {
             "id": ejercicio_asignado.paciente.id,
             "fotoUrl": ejercicio_asignado.paciente.persona_id.foto_url,
+            "urlVideoPaciente": (SeguimientoIA.objects.filter(paciente=ejercicio_asignado.paciente.id).first()).url_video_paciente,
             "nombre": ejercicio_asignado.paciente.persona_id.user.first_name,
             "apellidoPat": last_name_parts[0] if last_name_parts else ""
         }
@@ -54,6 +56,7 @@ def getEjerciciosAsignados(user_id):
                 "apellidoMat": persona_fisio.user.last_name.split(" ")[1] if len(persona_fisio.user.last_name.split(" ")) > 1 else ""
             }
 
+        seguimiento = SeguimientoIA.objects.filter(paciente=ejercicio_asignado.paciente).first()
         data = {
             "id": ejercicio_asignado.ejercicio.id,
             "nombre": ejercicio_asignado.ejercicio.nombre,
@@ -61,12 +64,15 @@ def getEjerciciosAsignados(user_id):
             "fechaAsignada": ejercicio_asignado.fecha_asignada,
             "fechaLimite": ejercicio_asignado.fecha_limite,
             "estado": ejercicio_asignado.estado.estado,
+            "urlVideo": ejercicio_asignado.ejercicio.url_video,
             "paciente": {
                 "id": ejercicio_asignado.paciente.id,
                 "fotoUrl": ejercicio_asignado.paciente.persona_id.foto_url,
+                "urlVideoPaciente": seguimiento.url_video_paciente if seguimiento else None,
                 "nombre": ejercicio_asignado.paciente.persona_id.user.first_name,
                 "apellidoPat": last_name_parts[0] if last_name_parts else "",
                 "apellidoMat": last_name_parts[1] if len(last_name_parts) > 1 else ""
+
             },
             "fisioterapeuta": fisioterapeuta_data
         }
@@ -75,8 +81,8 @@ def getEjerciciosAsignados(user_id):
     return resultado
 
 def asignarEjercicio(user, ejercicioID, pacienteID, fechaLimite):
-    # Verificar que el usuario sea un terapeuta
-    if not user.groups.filter(name='Terapeuta').exists():
+    # Verificar que el usuario esté asociado a un fisioterapeuta
+    if not Fisioterapeuta.objects.filter(persona_id__user=user).exists():
         raise PermissionDenied("El usuario no tiene permisos para asignar ejercicios.")
 
     # Verificar si el ejercicio existe
@@ -126,3 +132,71 @@ def asignarEjercicio(user, ejercicioID, pacienteID, fechaLimite):
             "fotoUrl": fisioterapeuta.persona_id.foto_url if fisioterapeuta else ""
         }
     }
+
+def actualizarEjercicioAsignado(ejercicioAsignadoID, ejercicioID, pacienteID, nuevo_estado, nueva_fecha_limite):
+    try:
+        # Intentamos obtener el EjercicioAsignado a través del ID
+        ejercicio_asignado = EjercicioAsignado.objects.get(id=ejercicioAsignadoID)
+
+        # Actualizamos los campos opcionales si se proporcionan
+        if ejercicioID:
+            ejercicio = Ejercicio.objects.get(id=ejercicioID)
+            ejercicio_asignado.ejercicio = ejercicio
+
+        if pacienteID:
+            paciente = Paciente.objects.get(id=pacienteID)
+            ejercicio_asignado.paciente = paciente
+
+        if nuevo_estado:
+            estado = Estado.objects.get(id=nuevo_estado)
+            ejercicio_asignado.estado = estado
+
+        if nueva_fecha_limite:
+            ejercicio_asignado.fecha_limite = nueva_fecha_limite
+
+        ejercicio_asignado.save()
+
+        return {
+            "id": ejercicio_asignado.id,
+            "nombre": ejercicio_asignado.ejercicio.nombre,
+            "descripcion": ejercicio_asignado.ejercicio.descripcion,
+            "fechaAsignada": ejercicio_asignado.fecha_asignada,
+            "fechaLimite": ejercicio_asignado.fecha_limite,
+            "estado": ejercicio_asignado.estado.estado,
+            "paciente": {
+                "id": ejercicio_asignado.paciente.id,
+                "nombre": ejercicio_asignado.paciente.persona_id.user.first_name,
+                "apellidoPat": ejercicio_asignado.paciente.persona_id.user.last_name.split(" ")[
+                    0] if ejercicio_asignado.paciente.persona_id.user.last_name else "",
+                "apellidoMat": ejercicio_asignado.paciente.persona_id.user.last_name.split(" ")[1] if len(
+                    ejercicio_asignado.paciente.persona_id.user.last_name.split(" ")) > 1 else "",
+                "fotoUrl": ejercicio_asignado.paciente.persona_id.foto_url
+            },
+            "ejercicio": {
+                "id": ejercicio_asignado.ejercicio.id,
+                "nombre": ejercicio_asignado.ejercicio.nombre,
+                "descripcion": ejercicio_asignado.ejercicio.descripcion,
+                "urlVideo": ejercicio_asignado.ejercicio.url_video
+            }
+        }
+
+    except EjercicioAsignado.DoesNotExist:
+        raise ValueError("El ejercicio asignado especificado no existe.")
+    except Ejercicio.DoesNotExist:
+        raise ValueError("El ejercicio especificado no existe.")
+    except Paciente.DoesNotExist:
+        raise ValueError("El paciente especificado no existe.")
+    except Estado.DoesNotExist:
+        raise ValueError("El estado especificado no existe.")
+
+def eliminarEjercicioAsignado(ejercicioID):
+    # Verificar si el ejercicio asignado existe
+    try:
+        ejercicio_asignado = EjercicioAsignado.objects.get(id=ejercicioID)
+    except EjercicioAsignado.DoesNotExist:
+        raise ValueError("El ejercicio asignado no existe.")
+
+    # Eliminar el ejercicio asignado
+    ejercicio_asignado.delete()
+
+    return {"mensaje": "Ejercicio asignado eliminado con éxito"}

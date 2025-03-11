@@ -1,23 +1,12 @@
 from djangoapp.utils.api_response import response_api
-from rest_framework import status, serializers
-from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework import status
+from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
-from django.db.utils import IntegrityError  # Importamos IntegrityError
+from django.db.utils import IntegrityError
 from djangoapp.services.auth.registerService import crear_usuario
 from djangoapp.utils.validations import validate_serializer
 
-
-class RegisterSerializer(serializers.Serializer):
-    nombre = serializers.CharField(required=True)
-    apellidoPaterno = serializers.CharField(required=True)
-    apellidoMaterno = serializers.CharField(required=True)
-    fechaNacimiento = serializers.DateField(required=True)
-    email = serializers.EmailField(required=True)
-    password = serializers.CharField(required=True)
-    nacionalidad = serializers.CharField(required=True)
-    telefono = serializers.CharField(required=True)
-    cedula = serializers.CharField(required=False)
-
+from djangoapp.serializers.authSerializer import RegisterSerializer
 
 @api_view(['POST'])
 def register(request):

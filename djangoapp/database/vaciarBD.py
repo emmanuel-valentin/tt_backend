@@ -9,7 +9,8 @@ django.setup()
 
 # Importar los modelos
 from django.contrib.auth.models import User
-from djangoapp.models import Estado, Persona, Paciente, Fisioterapeuta, Ejercicio, EjercicioAsignado
+from djangoapp.models import Estado, Persona, Paciente, Fisioterapeuta, Ejercicio, EjercicioAsignado, SeguimientoIA
+
 
 # Borrar los datos de los modelos de forma segura, respetando las dependencias
 def borrar_datos():
@@ -37,6 +38,9 @@ def borrar_datos():
     # Borrar Estados
     Estado.objects.all().delete()
     print("Datos de Estado borrados")
+
+    SeguimientoIA.objects.all().delete()
+    print("Datos de SeguimientoIA borrados")
 
 # Ejecutar la función para borrar los datos
 if __name__ == "__main__":

@@ -4,5 +4,7 @@ from djangoapp.views import ActivitiesView
 urlpatterns = [
     path('assignments', ActivitiesView.getActivities, name='getActivities'),
     path('assign', ActivitiesView.asignarEjercicio, name='asignarEjercicio'),
-    path('assignments/<int:id>', ActivitiesView.getActivitiesById, name='getActivitiesById'),
+    path('assignment/<int:id>', ActivitiesView.getActivitiesById, name='getActivitiesById'),
+    path('assigned/', ActivitiesView.actualizarEjercicioAsignado, name='actualizarActivitiesById'),
+    path('assigned/delete', ActivitiesView.eliminarEjercicioAsignado, name='eliminarActivitiesById')
 ]

@@ -77,7 +77,6 @@ class EjercicioAsignado(models.Model):
 
     class Meta:
         db_table = 'Ejercicio_Asignado'
-        unique_together = ('paciente', 'ejercicio')
 
 class Feedback(models.Model):
     fisioterapeuta = models.ForeignKey(Fisioterapeuta, on_delete=models.CASCADE)
@@ -97,9 +96,9 @@ class FeedbackFisioterapeuta(models.Model):
         unique_together = ('paciente', 'feedback')
 
 class SeguimientoIA(models.Model):
-    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
     feedback_ia = models.TextField(null=True)
     url_video_paciente = models.URLField(max_length=200, null=True)
+    ejercicio_asignado = models.ForeignKey(EjercicioAsignado, on_delete=models.CASCADE, null=True)
 
     class Meta:
         db_table = 'Seguimiento_IA'
