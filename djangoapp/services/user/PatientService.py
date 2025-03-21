@@ -25,3 +25,45 @@ def getPatientById(id):
         }
     }
     return data
+
+def updatePatient(data):
+    try:
+        paciente = Paciente.objects.get(id=data["id"])
+
+        # Actualizar los campos
+        if "ocupacion" in data:
+            paciente.ocupacion = data["ocupacion"]
+
+        # Actualizar los datos de la persona relacionada
+        if "persona" in data and data["persona"]:
+            persona_data = data["persona"]
+            if "fecha" in persona_data:
+                paciente.persona_id.fecha = persona_data["fecha"]
+            if "nacionalidad" in persona_data:
+                paciente.persona_id.nacionalidad = persona_data["nacionalidad"]
+            if "telefono" in persona_data:
+                paciente.persona_id.telefono = persona_data["telefono"]
+            if "foto_url" in persona_data:
+                paciente.persona_id.foto_url = persona_data["foto_url"]
+            paciente.persona_id.save()
+
+        # Actualizar los datos del usuario relacionado
+        if "usuario" in data and data["usuario"]:
+            usuario_data = data["usuario"]
+            if "username" in usuario_data:
+                paciente.persona_id.user.username = usuario_data["username"]
+            if "first_name" in usuario_data:
+                paciente.persona_id.user.first_name = usuario_data["first_name"]
+            if "last_name" in usuario_data:
+                paciente.persona_id.user.last_name = usuario_data["last_name"]
+            if "email" in usuario_data:
+                paciente.persona_id.user.email = usuario_data["email"]
+            paciente.persona_id.user.save()
+
+        paciente.save()
+        return paciente
+
+    except ObjectDoesNotExist:
+        return None
+    except Exception as e:
+        raise e
