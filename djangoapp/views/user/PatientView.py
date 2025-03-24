@@ -1,4 +1,3 @@
-from djangoapp.database.llenarBD import paciente
 from djangoapp.utils.api_response import response_api
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
