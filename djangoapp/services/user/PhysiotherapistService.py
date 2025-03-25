@@ -1,4 +1,4 @@
-from djangoapp.models import Fisioterapeuta
+from djangoapp.models import Fisioterapeuta, Vinculacion
 from django.core.exceptions import ObjectDoesNotExist
 
 def checkPhysiotherapist(id):
@@ -71,3 +71,17 @@ def updatePhysiotherapist(data):
         return None
     except Exception as e:
         raise e
+
+def getLinks(user_id):
+    from djangoapp.services.user.PatientService import getPatientById
+
+    vinculaciones = Vinculacion.objects.filter(paciente_id=user_id)
+
+    if not vinculaciones.exists():
+        return {"mensaje": "No hay vinculaciones para este paciente."}
+
+    data = []
+    for vinculacion in vinculaciones:
+        data.append(getPatientById(vinculacion.fisioterapeuta.id))
+
+    return {"vinculaciones": data}

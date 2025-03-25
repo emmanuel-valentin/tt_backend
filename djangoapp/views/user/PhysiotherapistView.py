@@ -35,6 +35,26 @@ def getPhysiotherapistById(request, id):
             }
         )
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getLinks(request):
+    try:
+        return response_api(
+            data=service.getLinks(request.user.id),
+            status_code=200,
+            error="",
+        )
+
+    except Exception as e:
+        return response_api(
+            status="error",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            error={
+                "message": "Error interno del servidor",
+                "details": str(e)
+            }
+        )
+
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def updatePhysiotherapist(request):
