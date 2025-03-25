@@ -13,7 +13,6 @@ class PersonaSerializer(serializers.ModelSerializer):
         model = Persona
         fields = ['id', 'fecha', 'nacionalidad', 'telefono', 'foto_url']
 
-
 class UsuarioSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
     username = serializers.CharField(required=False)
@@ -25,7 +24,6 @@ class UsuarioSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'first_name', 'last_name', 'email']
 
-
 class FisioterapeutaSerializer(serializers.Serializer):
     id = serializers.IntegerField(required=True)
     cedula = serializers.CharField(required=False)
@@ -33,9 +31,11 @@ class FisioterapeutaSerializer(serializers.Serializer):
     persona = PersonaSerializer(required=False)
     usuario = UsuarioSerializer(required=False)
 
-
 class PacienteSerializer(serializers.Serializer):
     id = serializers.IntegerField(required=True)
     ocupacion = serializers.CharField(required=False)
     persona = PersonaSerializer(required=False)
     usuario = UsuarioSerializer(required=False)
+
+class LinkPatientToPhysiotherapistSerializer(serializers.Serializer):
+    codigo = serializers.CharField(required=True)

@@ -151,7 +151,7 @@ for paciente in pacientes:
         Vinculacion.objects.create(
             fisioterapeuta=fisioterapeuta,
             paciente=paciente,
-            estado="ASIGNADO"
+            estado="VINCULADO"
         )
         print(f"Paciente {paciente.persona_id.user.username} vinculado con fisioterapeuta {fisioterapeuta.persona_id.user.username}")
     else:

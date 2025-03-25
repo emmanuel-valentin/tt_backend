@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from djangoapp.services.user import PatientService as service
-from djangoapp.serializers.usersSeralizer import PacienteSerializer
+from djangoapp.serializers.usersSeralizer import LinkPatientToPhysiotherapistSerializer
 
 
 @api_view(['GET'])
@@ -21,6 +21,26 @@ def getPatientById(request, id):
 
         return response_api(
             data=service.getPatientById(id),
+            status_code=200,
+            error="",
+        )
+
+    except Exception as e:
+        return response_api(
+            status="error",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            error={
+                "message": "Error interno del servidor",
+                "details": str(e)
+            }
+        )
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getLinks(request):
+    try:
+        return response_api(
+            data=service.getLinks(request.user.id),
             status_code=200,
             error="",
         )
@@ -75,4 +95,31 @@ def updatePatient(request):
             status="error",
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             error={"message": "Error interno del servidor", "details": str(e)}
+        )
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def linkPatientToPhysiotherapist(request):
+    serializer = LinkPatientToPhysiotherapistSerializer(data=request.data)
+
+    try:
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        response = service.linkPatientToPhysiotherapist(request.user.id, data)
+
+        return response_api(
+            data=response,
+            status_code=200,
+            error="",
+        )
+
+    except Exception as e:
+        return response_api(
+            status="error",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            error={
+                "message": "Error interno del servidor",
+                "details": str(e)
+            }
         )
