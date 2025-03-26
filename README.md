@@ -30,7 +30,15 @@ El estilo arquitectónico REST utiliza HTTP para solicitar acceso y utilizar dat
 ![Diagrama de red genérico](https://github.com/user-attachments/assets/3d5095b3-e9dc-41e0-8fcd-7c777b911145)
 
 ## Diagrama de los Modelos
-![Diagrama_modelos](djangoapp/resources/diagrama_modelos.png)
+![Diagrama_modelos](djangoapp/resources/models_diagram.png)
+
+## Generar Diagrama
+El diagrama se genera en base a los modelos que usa Django, para ello se deben seguir los siguientes pasos:
+- Entrar al contenedor de docker
+- Ejecutar `apt update`
+- Ejecutar `apt-get install graphviz libgraphviz-dev pkg-config`
+- Ejecutar `pip install pydotplus`
+- Generar diagrama con `python manage.py graph_models -a -o models_diagram.png`
 
 ## Documentación de los endpoints
 https://docs.google.com/document/d/1flyScEiDVKqQVDUTy_64g_H_2hWeATuMSoyoXtfLVOU/edit?usp=sharing

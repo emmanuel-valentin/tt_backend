@@ -1,4 +1,4 @@
-from djangoapp.models import Fisioterapeuta, Vinculacion
+from djangoapp.models import Fisioterapeuta, Vinculacion, Feedback, EjercicioAsignado
 from django.core.exceptions import ObjectDoesNotExist
 
 def checkPhysiotherapist(id):
@@ -85,3 +85,25 @@ def getLinks(user_id):
         data.append(getPatientById(vinculacion.fisioterapeuta.id))
 
     return {"vinculaciones": data}
+
+def sendFeedback(data, user_id):
+    try:
+        ejercicio_asignado = EjercicioAsignado.objects.get(id=data["ejercicio_asignado_id"])
+
+        fisioterapeuta = Fisioterapeuta.objects.get(persona_id__user__id=user_id)  # Obtener la instancia de Fisioterapeuta
+
+        feedback = Feedback.objects.create(
+            fisioterapeuta=fisioterapeuta,  # Pasar la instancia en lugar del ID
+            ejercicio_asignado=ejercicio_asignado,  # Pasar la instancia en lugar del ID
+            feedback=data.get("feedback")
+        )
+
+        return {"mensaje": "Feedback guardado exitosamente.", "feedback_id": feedback.id}
+
+    except EjercicioAsignado.DoesNotExist:
+        return {"error": "El ejercicio asignado no existe."}
+    except Fisioterapeuta.DoesNotExist:
+        return {"error": "El fisioterapeuta no existe."}
+    except Exception as e:
+        return {"error": str(e)}
+

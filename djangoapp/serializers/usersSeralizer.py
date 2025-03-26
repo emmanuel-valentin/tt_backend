@@ -39,3 +39,7 @@ class PacienteSerializer(serializers.Serializer):
 
 class LinkPatientToPhysiotherapistSerializer(serializers.Serializer):
     codigo = serializers.CharField(required=True)
+
+class SendFeedbackSerializer(serializers.Serializer):
+    ejercicio_asignado_id = serializers.IntegerField(required=True)
+    feedback = serializers.CharField(required=True)
