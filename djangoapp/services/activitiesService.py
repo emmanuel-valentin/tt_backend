@@ -1,6 +1,7 @@
 from django.utils import timezone
 from rest_framework.exceptions import PermissionDenied
-from djangoapp.models import Ejercicio, EjercicioAsignado, Vinculacion, Paciente, Estado, Fisioterapeuta, SeguimientoIA
+from djangoapp.models import Ejercicio, EjercicioAsignado, Vinculacion, Paciente, Estado, Fisioterapeuta, SeguimientoIA, \
+    Feedback
 
 
 def checkEjercicioAsignado(id):
@@ -8,6 +9,7 @@ def checkEjercicioAsignado(id):
 
 def getEjercicioAsignadoByID(id):
     ejercicio_asignado = EjercicioAsignado.objects.get(id=id)
+    feedback_model = Feedback.objects.get(ejercicio_asignado_id=ejercicio_asignado.id)
     last_name_parts = ejercicio_asignado.paciente.persona_id.user.last_name.split(" ")
 
     data = {
@@ -18,10 +20,11 @@ def getEjercicioAsignadoByID(id):
         "paciente": {
             "id": ejercicio_asignado.paciente.id,
             "fotoUrl": ejercicio_asignado.paciente.persona_id.foto_url,
-            "urlVideoPaciente": (SeguimientoIA.objects.filter(paciente=ejercicio_asignado.paciente.id).first()).url_video_paciente,
+            "urlVideoPaciente": ejercicio_asignado.url_video_paciente,
             "nombre": ejercicio_asignado.paciente.persona_id.user.first_name,
             "apellidoPat": last_name_parts[0] if last_name_parts else ""
-        }
+        },
+        "feedback": feedback_model.feedback
     }
 
     # Solo agregar "apellidoMat" si hay un segundo apellido
@@ -37,6 +40,7 @@ def getEjerciciosAsignados(user_id):
 
     resultado = []
     for ejercicio_asignado in ejercicios_asignados:
+        feedback_model = Feedback.objects.filter(ejercicio_asignado_id=ejercicio_asignado.id).first()
         last_name_parts = ejercicio_asignado.paciente.persona_id.user.last_name.split(" ")
 
         # Obtener la vinculación del fisioterapeuta con el paciente
@@ -56,7 +60,6 @@ def getEjerciciosAsignados(user_id):
                 "apellidoMat": persona_fisio.user.last_name.split(" ")[1] if len(persona_fisio.user.last_name.split(" ")) > 1 else ""
             }
 
-        seguimiento = SeguimientoIA.objects.filter(paciente=ejercicio_asignado.paciente).first()
         data = {
             "id": ejercicio_asignado.ejercicio.id,
             "nombre": ejercicio_asignado.ejercicio.nombre,
@@ -68,12 +71,13 @@ def getEjerciciosAsignados(user_id):
             "paciente": {
                 "id": ejercicio_asignado.paciente.id,
                 "fotoUrl": ejercicio_asignado.paciente.persona_id.foto_url,
-                "urlVideoPaciente": seguimiento.url_video_paciente if seguimiento else None,
+                "urlVideoPaciente": ejercicio_asignado.url_video_paciente,
                 "nombre": ejercicio_asignado.paciente.persona_id.user.first_name,
                 "apellidoPat": last_name_parts[0] if last_name_parts else "",
                 "apellidoMat": last_name_parts[1] if len(last_name_parts) > 1 else ""
 
             },
+            "feedback": feedback_model.feedback if feedback_model else None,
             "fisioterapeuta": fisioterapeuta_data
         }
         resultado.append(data)

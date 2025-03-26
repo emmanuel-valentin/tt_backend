@@ -5,6 +5,7 @@ urlpatterns = [
     path('physiotherapist/<int:id>', PhysiotherapistView.getPhysiotherapistById, name='getPhysiotherapistById'),
     path('physiotherapist/update', PhysiotherapistView.updatePhysiotherapist, name='updatePhysiotherapistById'),
     path('physiotherapist/links', PhysiotherapistView.getLinks, name='getLinks'),
+    path('physiotherapist/feedback', PhysiotherapistView.sendFeedback, name='sendFeedback'),
 
 
     path('patient/<int:id>', PatientView.getPatientById, name='getPatientById'),

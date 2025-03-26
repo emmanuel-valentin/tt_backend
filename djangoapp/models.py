@@ -74,30 +74,21 @@ class EjercicioAsignado(models.Model):
     estado = models.ForeignKey(Estado, on_delete=models.CASCADE)
     fecha_asignada = models.DateTimeField(null=True)
     fecha_limite = models.DateTimeField(null=True)
+    url_video_paciente = models.URLField(max_length=200, null=True)
 
     class Meta:
         db_table = 'Ejercicio_Asignado'
 
 class Feedback(models.Model):
     fisioterapeuta = models.ForeignKey(Fisioterapeuta, on_delete=models.CASCADE)
-    ejercicio = models.ForeignKey(Ejercicio, on_delete=models.CASCADE)
+    ejercicio_asignado = models.ForeignKey(EjercicioAsignado, on_delete=models.CASCADE, null=True, blank=True)
     feedback = models.TextField(null=True)
 
     class Meta:
         db_table = 'Feedback'
 
-class FeedbackFisioterapeuta(models.Model):
-    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
-    feedback = models.ForeignKey(Feedback, on_delete=models.CASCADE)
-    estado = models.ForeignKey(Estado, on_delete=models.CASCADE)
-
-    class Meta:
-        db_table = 'Feedback_Fisioterapeuta'
-        unique_together = ('paciente', 'feedback')
-
 class SeguimientoIA(models.Model):
     feedback_ia = models.TextField(null=True)
-    url_video_paciente = models.URLField(max_length=200, null=True)
     ejercicio_asignado = models.ForeignKey(EjercicioAsignado, on_delete=models.CASCADE, null=True)
 
     class Meta:
