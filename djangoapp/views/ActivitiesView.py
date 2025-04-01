@@ -4,7 +4,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from djangoapp.services import activitiesService as service
 
-from djangoapp.serializers.activitesSerializer import asignarEjercicioSerializer, actualizarEjercicioAsignadoSerializer, eliminarEjercicioAsignadoSerializer
+from djangoapp.serializers.activitesSerializer import asignarEjercicioSerializer, actualizarEjercicioAsignadoSerializer, \
+    eliminarEjercicioAsignadoSerializer, subirEjercicioAsignadoSerializer
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -148,6 +150,35 @@ def eliminarEjercicioAsignado(request):
 
     except Exception as e:
         # Manejo de excepciones y respuesta de error
+        return response_api(
+            status="error",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            error={
+                "message": "Error interno del servidor",
+                "details": str(e)
+            }
+        )
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def subirEjercicioAsignado(request):
+    serializer = subirEjercicioAsignadoSerializer(data=request.data)
+
+    try:
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+
+        # Guardar el archivo en el modelo
+        response = service.subirEjercicioAsignado(request.FILES['video'], data)
+
+        return response_api(
+            data=response,
+            status_code=200,
+            error="",
+        )
+
+    except Exception as e:
         return response_api(
             status="error",
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
