@@ -6,5 +6,6 @@ urlpatterns = [
     path('assign', ActivitiesView.asignarEjercicio, name='asignarEjercicio'),
     path('assignment/<int:id>', ActivitiesView.getActivitiesById, name='getActivitiesById'),
     path('assigned/', ActivitiesView.actualizarEjercicioAsignado, name='actualizarActivitiesById'),
-    path('assigned/delete', ActivitiesView.eliminarEjercicioAsignado, name='eliminarActivitiesById')
+    path('assigned/delete', ActivitiesView.eliminarEjercicioAsignado, name='eliminarActivitiesById'),
+    path('assigned/submit', ActivitiesView.subirEjercicioAsignado, name='subirActivitiesById')
 ]

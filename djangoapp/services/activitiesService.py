@@ -204,3 +204,23 @@ def eliminarEjercicioAsignado(ejercicioID):
     ejercicio_asignado.delete()
 
     return {"mensaje": "Ejercicio asignado eliminado con éxito"}
+
+def subirEjercicioAsignado(video, data):
+    try:
+        ejercicio_asignado = EjercicioAsignado.objects.get(id=data.get("ejercicioAsignadoID"))
+
+        # Guardar el archivo en la carpeta configurada en MEDIA_ROOT
+        ejercicio_asignado.estado_id = 2
+        ejercicio_asignado.url_video_paciente.save(video.name, video)
+        ejercicio_asignado.save()
+
+        return {
+            "mensaje": "Video subido con éxito",
+            "video_url": ejercicio_asignado.url_video_paciente.url
+        }
+
+    except EjercicioAsignado.DoesNotExist:
+        return {"error": "El ejercicio asignado no existe"}
+
+    except Exception as e:
+        return {"error": str(e)}

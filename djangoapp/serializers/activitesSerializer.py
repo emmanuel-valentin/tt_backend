@@ -14,3 +14,7 @@ class actualizarEjercicioAsignadoSerializer(serializers.Serializer):
 
 class eliminarEjercicioAsignadoSerializer(serializers.Serializer):
     ejercicioAsignadoID = serializers.IntegerField(required=True)
+
+class subirEjercicioAsignadoSerializer(serializers.Serializer):
+    ejercicioAsignadoID = serializers.IntegerField(required=True)
+    video = serializers.FileField(required=True)

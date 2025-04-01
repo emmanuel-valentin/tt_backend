@@ -74,7 +74,7 @@ class EjercicioAsignado(models.Model):
     estado = models.ForeignKey(Estado, on_delete=models.CASCADE)
     fecha_asignada = models.DateTimeField(null=True)
     fecha_limite = models.DateTimeField(null=True)
-    url_video_paciente = models.URLField(max_length=200, null=True)
+    url_video_paciente = models.FileField(upload_to='storage/', null=True, blank=True)
 
     class Meta:
         db_table = 'Ejercicio_Asignado'
