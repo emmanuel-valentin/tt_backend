@@ -14,7 +14,6 @@ def getPhysiotherapistById(id):
         "persona": {
             "id": fisioterapeuta.persona_id.id,
             "fecha_nacimiento": fisioterapeuta.persona_id.fecha ,
-            "nacionalidad": fisioterapeuta.persona_id.nacionalidad,
             "telefono": fisioterapeuta.persona_id.telefono,
             "foto_url": fisioterapeuta.persona_id.foto_url,
         },
@@ -43,8 +42,6 @@ def updatePhysiotherapist(data):
             persona_data = data["persona"]
             if "fecha" in persona_data:
                 fisioterapeuta.persona_id.fecha = persona_data["fecha"]
-            if "nacionalidad" in persona_data:
-                fisioterapeuta.persona_id.nacionalidad = persona_data["nacionalidad"]
             if "telefono" in persona_data:
                 fisioterapeuta.persona_id.telefono = persona_data["telefono"]
             if "foto_url" in persona_data:

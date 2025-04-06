@@ -11,6 +11,5 @@ class RegisterSerializer(serializers.Serializer):
     fechaNacimiento = serializers.DateField(required=True)
     email = serializers.EmailField(required=True)
     password = serializers.CharField(required=True)
-    nacionalidad = serializers.CharField(required=True)
     telefono = serializers.CharField(required=True)
     cedula = serializers.CharField(required=False)

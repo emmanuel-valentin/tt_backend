@@ -5,7 +5,6 @@ from djangoapp.models import Fisioterapeuta, Persona, User
 class PersonaSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
     fecha = serializers.DateField(required=False)
-    nacionalidad = serializers.CharField(required=False)
     telefono = serializers.CharField(required=False)
     foto_url = serializers.CharField(required=False)
 

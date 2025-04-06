@@ -20,7 +20,6 @@ def crear_usuario(data):
 
     persona = Persona.objects.create(
         fecha=data['fechaNacimiento'],
-        nacionalidad=data['nacionalidad'],
         telefono=data['telefono'],
         foto_url=None,
         user=user

@@ -12,7 +12,6 @@ def getPatientById(id):
         "persona": {
             "id": paciente.persona_id.id,
             "fecha_nacimiento": paciente.persona_id.fecha ,
-            "nacionalidad": paciente.persona_id.nacionalidad,
             "telefono": paciente.persona_id.telefono,
             "foto_url": paciente.persona_id.foto_url,
         },
@@ -39,8 +38,6 @@ def updatePatient(data):
             persona_data = data["persona"]
             if "fecha" in persona_data:
                 paciente.persona_id.fecha = persona_data["fecha"]
-            if "nacionalidad" in persona_data:
-                paciente.persona_id.nacionalidad = persona_data["nacionalidad"]
             if "telefono" in persona_data:
                 paciente.persona_id.telefono = persona_data["telefono"]
             if "foto_url" in persona_data:
