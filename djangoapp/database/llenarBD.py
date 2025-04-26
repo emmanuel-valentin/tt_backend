@@ -82,7 +82,7 @@ for i, persona in enumerate(personas):
         # Crear pacientes
         paciente = Paciente.objects.create(
             persona_id=persona,
-            ocupacion=fake.job()  # Asignamos una ocupación aleatoria al paciente
+            ocupacion=fake.job()[:45]  # Asignamos una ocupación aleatoria al paciente
         )
         pacientes.append(paciente)
         print(f"Paciente {persona.user.username} creado")
