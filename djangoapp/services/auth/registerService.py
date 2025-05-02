@@ -1,6 +1,7 @@
 import random
 import string
 from djangoapp.models import Fisioterapeuta, Persona, Paciente
+from djangoapp.services.auth.loginService import iniciar_sesion
 from django.contrib.auth.models import User
 
 def generar_codigo_token():
@@ -38,4 +39,6 @@ def crear_usuario(data):
             ocupacion=None
         )
 
-    return user, persona
+    access_token, refresh_token = iniciar_sesion(data)
+
+    return access_token, refresh_token

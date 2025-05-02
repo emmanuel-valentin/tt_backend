@@ -14,9 +14,14 @@ def register(request):
 
     try:
         data = validate_serializer(serializer)
-        crear_usuario(data)
+        access_token, refresh_token = crear_usuario(data)
+        
         return response_api(
-            data={"message": "Usuario Creado Correctamente"},
+            data={
+                "message": "Usuario Creado Correctamente",
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+            },
             status_code=status.HTTP_201_CREATED
         )
 

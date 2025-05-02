@@ -1,19 +1,22 @@
 from djangoapp.models import Fisioterapeuta, Vinculacion, Feedback, EjercicioAsignado
+from djangoapp.constants.role import Role
 from django.core.exceptions import ObjectDoesNotExist
 
+
 def checkPhysiotherapist(id):
-    return Fisioterapeuta.objects.filter(id=id).exists()
+    return Fisioterapeuta.objects.filter(persona_id=id).exists()
 
 def getPhysiotherapistById(id):
-    fisioterapeuta = Fisioterapeuta.objects.select_related('persona_id__user').get(id=id)
+    fisioterapeuta = Fisioterapeuta.objects.select_related('persona_id__user').get(persona_id=id)
 
     data = {
         "id": fisioterapeuta.id,
         "cedula": fisioterapeuta.cedula,
         "codigo_token": fisioterapeuta.codigo_token,
+        "rol": Role.PHYSIOTHERAPIST.to_json(),
         "persona": {
             "id": fisioterapeuta.persona_id.id,
-            "fecha_nacimiento": fisioterapeuta.persona_id.fecha ,
+            "fecha_nacimiento": fisioterapeuta.persona_id.fecha,
             "telefono": fisioterapeuta.persona_id.telefono,
             "foto_url": fisioterapeuta.persona_id.foto_url,
         },
@@ -26,6 +29,7 @@ def getPhysiotherapistById(id):
         }
     }
     return data
+
 
 def updatePhysiotherapist(data):
     try:
@@ -69,19 +73,46 @@ def updatePhysiotherapist(data):
     except Exception as e:
         raise e
 
-def getLinks(user_id):
+
+def getLinks(user_id, estado=None):
     from djangoapp.services.user.PatientService import getPatientById
 
-    vinculaciones = Vinculacion.objects.filter(paciente_id=user_id)
+    try:
+        # Obtener el fisioterapeuta usando el user_id
+        fisioterapeuta = Fisioterapeuta.objects.get(persona_id__user__id=user_id)
+        
+        # Filtrar vinculaciones según el estado (si se proporciona)
+        if estado:
+            vinculaciones = Vinculacion.objects.filter(
+                fisioterapeuta=fisioterapeuta,
+                estado=estado
+            )
+        else:
+            vinculaciones = Vinculacion.objects.filter(fisioterapeuta=fisioterapeuta)
 
-    if not vinculaciones.exists():
-        return {"mensaje": "No hay vinculaciones para este paciente."}
+        if not vinculaciones.exists():
+            # mensaje = "No hay vinculaciones"
+            # if estado:
+            #     mensaje += f" con estado '{estado}'"
+            # mensaje += " para este fisioterapeuta."
+            return []
 
-    data = []
-    for vinculacion in vinculaciones:
-        data.append(getPatientById(vinculacion.fisioterapeuta.id))
+        data = []
+        for vinculacion in vinculaciones:
+            if vinculacion.paciente and vinculacion.paciente.persona_id:
+                paciente_data = getPatientById(vinculacion.paciente.persona_id.id)
+                # Añadir información de vinculación
+                paciente_data["vinculacion_id"] = vinculacion.id
+                paciente_data["vinculacion_estado"] = vinculacion.estado
+                data.append(paciente_data)
 
-    return {"vinculaciones": data}
+        return data
+        
+    except Fisioterapeuta.DoesNotExist:
+        return {"error": "El fisioterapeuta no existe."}
+    except Exception as e:
+        raise e
+
 
 def sendFeedback(data, user_id):
     try:
@@ -104,3 +135,44 @@ def sendFeedback(data, user_id):
     except Exception as e:
         return {"error": str(e)}
 
+
+def acceptLink(vinculacion_id, user_id):
+    try:
+        # Verificar si el usuario es un fisioterapeuta
+        fisioterapeuta = Fisioterapeuta.objects.get(persona_id__user__id=user_id)
+        
+        # Buscar la vinculación
+        vinculacion = Vinculacion.objects.get(id=vinculacion_id, fisioterapeuta=fisioterapeuta)
+        
+        # Actualizar el estado de la vinculación
+        vinculacion.estado = "VINCULADO"
+        vinculacion.save()
+        
+        return {"mensaje": "Vinculación aceptada exitosamente."}
+    
+    except Fisioterapeuta.DoesNotExist:
+        raise Fisioterapeuta.DoesNotExist("El fisioterapeuta no existe.")
+    except Vinculacion.DoesNotExist:
+        raise Vinculacion.DoesNotExist("La vinculación no existe o no pertenece a este fisioterapeuta.")
+    except Exception as e:
+        raise e
+
+
+def rejectLink(vinculacion_id, user_id):
+    try:
+        # Verificar si el usuario es un fisioterapeuta
+        fisioterapeuta = Fisioterapeuta.objects.get(persona_id__user__id=user_id)
+        
+        # Buscar la vinculación
+        vinculacion = Vinculacion.objects.get(id=vinculacion_id, fisioterapeuta=fisioterapeuta)
+        
+        # Eliminar completamente el registro de vinculación
+        vinculacion.delete()
+        return {"mensaje": "Vinculación rechazada y eliminada exitosamente."}
+    
+    except Fisioterapeuta.DoesNotExist:
+        raise Fisioterapeuta.DoesNotExist("El fisioterapeuta no existe.")
+    except Vinculacion.DoesNotExist:
+        raise Vinculacion.DoesNotExist("La vinculación no existe o no pertenece a este fisioterapeuta.")
+    except Exception as e:
+        raise e

@@ -38,7 +38,7 @@ def getActivitiesById(request, id):
                 status="error",
                 status_code=status.HTTP_404_NOT_FOUND,
                 error={
-                    "message": "No existe un ejercicio asignado con ese ID"
+                    "message": f"No existe un ejercicio asignado con el ID: {id}"
                 }
             )
 

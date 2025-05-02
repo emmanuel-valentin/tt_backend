@@ -1,17 +1,23 @@
 from djangoapp.models import Paciente, Vinculacion, Fisioterapeuta
+from djangoapp.constants.role import Role
+from django.core.exceptions import ObjectDoesNotExist
+from djangoapp.services.user import UserService as user_service
+
 
 def checkPatient(id):
-    return Paciente.objects.filter(id=id).exists()
+    return Paciente.objects.filter(persona_id=id).exists()
+
 
 def getPatientById(id):
-    paciente = Paciente.objects.select_related('persona_id__user').get(id=id)
+    paciente = Paciente.objects.select_related('persona_id__user').get(persona_id=id)
 
     data = {
         "id": paciente.id,
-        "ocupacion": paciente.ocupacion,
+        # "ocupacion": paciente.ocupacion,
+        "rol": Role.PATIENT.to_json(),
         "persona": {
             "id": paciente.persona_id.id,
-            "fecha_nacimiento": paciente.persona_id.fecha ,
+            "fecha_nacimiento": paciente.persona_id.fecha,
             "telefono": paciente.persona_id.telefono,
             "foto_url": paciente.persona_id.foto_url,
         },
@@ -24,6 +30,7 @@ def getPatientById(id):
         }
     }
     return data
+
 
 def updatePatient(data):
     try:
@@ -65,38 +72,55 @@ def updatePatient(data):
     except Exception as e:
         raise e
 
+
 def linkPatientToPhysiotherapist(user_id, data):
-    try:
-        fisioterapeuta = Fisioterapeuta.objects.get(codigo_token=data.get("codigo"))
+    persona_id = user_service.getPersonaIdByUserId(user_id)
+    paciente_id = getPatientById(persona_id)["id"]
+    fisioterapeuta = Fisioterapeuta.objects.get(codigo_token=data.get("codigo"))
 
-        # Crear la vinculación
-        link = Vinculacion(
-            paciente_id=user_id,
-            fisioterapeuta_id=fisioterapeuta.id,
-            estado="VINCULADO"
-        )
-        link.save()
+    # Crear la vinculación
+    link = Vinculacion(
+        paciente_id=paciente_id,
+        fisioterapeuta_id=fisioterapeuta.id,
+        estado="PENDIENTE"
+    )
+    link.save()
 
-        return {"mensaje": "Paciente vinculado correctamente al fisioterapeuta."}
+    return {"mensaje": "Solicitud de vinculacuón enviada correctamente."}
 
-    except Fisioterapeuta.DoesNotExist:
-        return {"error": "El código del fisioterapeuta no existe"}
-
-    except Exception as e:
-        return {"error": f"Ocurrió un error inesperado: {str(e)}"}
 
 def getLinks(user_id):
     from djangoapp.services.user.PhysiotherapistService import getPhysiotherapistById
 
-    vinculaciones = Vinculacion.objects.filter(paciente_id=user_id)
+    try:
+        # Obtener el paciente usando el user_id
+        paciente = Paciente.objects.get(persona_id__user__id=user_id)
 
-    if not vinculaciones.exists():
-        return {"mensaje": "No hay vinculaciones para este paciente."}
+        # Obtener todas las vinculaciones del paciente
+        vinculaciones = Vinculacion.objects.filter(paciente=paciente)
 
-    data = []
-    for vinculacion in vinculaciones:
-        data.append(getPhysiotherapistById(vinculacion.fisioterapeuta.id))
+        # if not vinculaciones.exists():
+        #     return {"mensaje": "No hay vinculaciones para este paciente."}
 
-    return {"vinculaciones": data}
+        data = []
+        for vinculacion in vinculaciones:
+            if vinculacion.fisioterapeuta:
+                fisio_data = getPhysiotherapistById(vinculacion.fisioterapeuta.persona_id.id)
+                # Añadir información de vinculación
+                fisio_data["vinculacion_id"] = vinculacion.id
+                fisio_data["vinculacion_estado"] = vinculacion.estado
+                data.append(fisio_data)
+
+        return data
+
+    except Paciente.DoesNotExist:
+        return {"error": "El paciente no existe."}
+    except Exception as e:
+        raise e
 
 
+def desvincularVinculacion(paciente_id, vinculacion_id):
+    vinculacion = Vinculacion.objects.get(id=vinculacion_id, paciente_id=paciente_id)
+    vinculacion.estado = "DESVINCULADO"
+    vinculacion.save()
+    return {"mensaje": "Vinculación desvinculada exitosamente."}
