@@ -9,22 +9,54 @@ def checkEjercicioAsignado(id):
 
 def getEjercicioAsignadoByID(id):
     ejercicio_asignado = EjercicioAsignado.objects.get(id=id)
-    feedback_model = Feedback.objects.get(ejercicio_asignado_id=ejercicio_asignado.id)
+    feedback_queryset = Feedback.objects.filter(ejercicio_asignado_id=ejercicio_asignado.id)
     last_name_parts = ejercicio_asignado.paciente.persona_id.user.last_name.split(" ")
 
+    # Obtener la vinculación del fisioterapeuta con el paciente
+    vinculacion = Vinculacion.objects.filter(paciente=ejercicio_asignado.paciente).first()
+
+     # Si hay un fisioterapeuta vinculado, obtener sus datos
+    fisioterapeuta_data = {}
+    if vinculacion and vinculacion.fisioterapeuta:
+        fisioterapeuta = vinculacion.fisioterapeuta
+        persona_fisio = fisioterapeuta.persona_id
+        fisioterapeuta_data = {
+            "id": fisioterapeuta.id,
+            "persona_id": fisioterapeuta.persona_id.id,
+            "fotoUrl": persona_fisio.foto_url,
+            "nombre": persona_fisio.user.first_name,
+            "apellidoPat": persona_fisio.user.last_name.split(" ")[0] if persona_fisio.user.last_name else "",
+            "apellidoMat": persona_fisio.user.last_name.split(" ")[1] if len(persona_fisio.user.last_name.split(" ")) > 1 else ""
+        }
+
+    # Convertir el queryset de feedback en una lista de diccionarios con la información relevante
+    feedbacks = []
+    for feedback in feedback_queryset:
+        feedbacks.append({
+            "id": feedback.id,
+            "feedback": feedback.feedback,
+            "fisioterapeuta_id": feedback.fisioterapeuta.id
+        })
+
     data = {
-        "id": ejercicio_asignado.ejercicio.id,
+        "id": ejercicio_asignado.id,
         "nombre": ejercicio_asignado.ejercicio.nombre,
         "descripcion": ejercicio_asignado.ejercicio.descripcion,
+        "fechaAsignada": ejercicio_asignado.fecha_asignada,
+        "fechaLimite": ejercicio_asignado.fecha_limite,
+        "estado": ejercicio_asignado.estado.estado,
         "urlVideo": ejercicio_asignado.ejercicio.url_video,
         "paciente": {
             "id": ejercicio_asignado.paciente.id,
+            "persona_id": ejercicio_asignado.paciente.persona_id.id,
             "fotoUrl": ejercicio_asignado.paciente.persona_id.foto_url,
-            "urlVideoPaciente": ejercicio_asignado.url_video_paciente,
+            "urlVideoPaciente": ejercicio_asignado.url_video_paciente.url if ejercicio_asignado.url_video_paciente else None,
             "nombre": ejercicio_asignado.paciente.persona_id.user.first_name,
-            "apellidoPat": last_name_parts[0] if last_name_parts else ""
+            "apellidoPat": last_name_parts[0] if last_name_parts else "",
+            "apellidoMat": last_name_parts[1] if len(last_name_parts) > 1 else ""
         },
-        "feedback": feedback_model.feedback
+        "feedback": feedbacks,  # Ahora es una lista de feedbacks
+        "fisioterapeuta": fisioterapeuta_data
     }
 
     # Solo agregar "apellidoMat" si hay un segundo apellido
@@ -36,12 +68,33 @@ def getEjercicioAsignadoByID(id):
     return data
 
 def getEjerciciosAsignados(user_id):
-    ejercicios_asignados = EjercicioAsignado.objects.filter(paciente__persona_id__user__id=user_id)
+    # Determinar si el usuario es un fisioterapeuta
+    es_fisioterapeuta = Fisioterapeuta.objects.filter(persona_id__user__id=user_id).exists()
+    
+    if es_fisioterapeuta:
+        # Si es fisioterapeuta, obtener los ejercicios que ha asignado a sus pacientes
+        fisioterapeuta = Fisioterapeuta.objects.get(persona_id__user__id=user_id)
+        # Obtener pacientes vinculados al fisioterapeuta
+        vinculaciones = Vinculacion.objects.filter(fisioterapeuta=fisioterapeuta)
+        pacientes_ids = [v.paciente.id for v in vinculaciones]
+        # Obtener ejercicios asignados a estos pacientes
+        ejercicios_asignados = EjercicioAsignado.objects.filter(paciente__id__in=pacientes_ids)
+    else:
+        # Si es paciente, obtener los ejercicios asignados al paciente
+        ejercicios_asignados = EjercicioAsignado.objects.filter(paciente__persona_id__user__id=user_id)
 
     resultado = []
     for ejercicio_asignado in ejercicios_asignados:
-        feedback_model = Feedback.objects.filter(ejercicio_asignado_id=ejercicio_asignado.id).first()
+        feedback_queryset = Feedback.objects.filter(ejercicio_asignado_id=ejercicio_asignado.id)
         last_name_parts = ejercicio_asignado.paciente.persona_id.user.last_name.split(" ")
+
+        # Convertir el queryset de feedback en una lista de diccionarios con la información relevante
+        feedbacks = []
+        for feedback in feedback_queryset:
+            feedbacks.append({
+                "id": feedback.id,
+                "feedback": feedback.feedback,
+            })
 
         # Obtener la vinculación del fisioterapeuta con el paciente
         vinculacion = Vinculacion.objects.filter(paciente=ejercicio_asignado.paciente).first()
@@ -54,6 +107,7 @@ def getEjerciciosAsignados(user_id):
 
             fisioterapeuta_data = {
                 "id": fisioterapeuta.id,
+                "persona_id": fisioterapeuta.persona_id.id,
                 "fotoUrl": persona_fisio.foto_url,
                 "nombre": persona_fisio.user.first_name,
                 "apellidoPat": persona_fisio.user.last_name.split(" ")[0] if persona_fisio.user.last_name else "",
@@ -61,7 +115,7 @@ def getEjerciciosAsignados(user_id):
             }
 
         data = {
-            "id": ejercicio_asignado.ejercicio.id,
+            "id": ejercicio_asignado.id,
             "nombre": ejercicio_asignado.ejercicio.nombre,
             "descripcion": ejercicio_asignado.ejercicio.descripcion,
             "fechaAsignada": ejercicio_asignado.fecha_asignada,
@@ -70,14 +124,14 @@ def getEjerciciosAsignados(user_id):
             "urlVideo": ejercicio_asignado.ejercicio.url_video,
             "paciente": {
                 "id": ejercicio_asignado.paciente.id,
+                "persona_id": ejercicio_asignado.paciente.persona_id.id,
                 "fotoUrl": ejercicio_asignado.paciente.persona_id.foto_url,
-                "urlVideoPaciente": ejercicio_asignado.url_video_paciente,
+                "urlVideoPaciente": ejercicio_asignado.url_video_paciente.url if ejercicio_asignado.url_video_paciente else None,
                 "nombre": ejercicio_asignado.paciente.persona_id.user.first_name,
                 "apellidoPat": last_name_parts[0] if last_name_parts else "",
                 "apellidoMat": last_name_parts[1] if len(last_name_parts) > 1 else ""
-
             },
-            "feedback": feedback_model.feedback if feedback_model else None,
+            "feedback": feedbacks,
             "fisioterapeuta": fisioterapeuta_data
         }
         resultado.append(data)
@@ -123,6 +177,7 @@ def asignarEjercicio(user, ejercicioID, pacienteID, fechaLimite):
         "estado": ejercicio_asignado.estado.estado,
         "paciente": {
             "id": paciente.id,
+            "persona_id": paciente.persona_id.id,
             "nombre": paciente.persona_id.user.first_name,
             "apellidoPat": paciente.persona_id.user.last_name.split(" ")[0] if paciente.persona_id.user.last_name else "",
             "apellidoMat": paciente.persona_id.user.last_name.split(" ")[1] if len(paciente.persona_id.user.last_name.split(" ")) > 1 else "",
@@ -130,6 +185,7 @@ def asignarEjercicio(user, ejercicioID, pacienteID, fechaLimite):
         },
         "fisioterapeuta": {
             "id": fisioterapeuta.id if fisioterapeuta else "",
+            "persona_id": fisioterapeuta.persona_id.id if fisioterapeuta else "",
             "nombre": fisioterapeuta.persona_id.user.first_name if fisioterapeuta else "",
             "apellidoPat": fisioterapeuta.persona_id.user.last_name.split(" ")[0] if fisioterapeuta and fisioterapeuta.persona_id.user.last_name else "",
             "apellidoMat": fisioterapeuta.persona_id.user.last_name.split(" ")[1] if fisioterapeuta and len(fisioterapeuta.persona_id.user.last_name.split(" ")) > 1 else "",
@@ -169,11 +225,10 @@ def actualizarEjercicioAsignado(ejercicioAsignadoID, ejercicioID, pacienteID, nu
             "estado": ejercicio_asignado.estado.estado,
             "paciente": {
                 "id": ejercicio_asignado.paciente.id,
+                "persona_id": ejercicio_asignado.paciente.persona_id.id,
                 "nombre": ejercicio_asignado.paciente.persona_id.user.first_name,
-                "apellidoPat": ejercicio_asignado.paciente.persona_id.user.last_name.split(" ")[
-                    0] if ejercicio_asignado.paciente.persona_id.user.last_name else "",
-                "apellidoMat": ejercicio_asignado.paciente.persona_id.user.last_name.split(" ")[1] if len(
-                    ejercicio_asignado.paciente.persona_id.user.last_name.split(" ")) > 1 else "",
+                "apellidoPat": ejercicio_asignado.paciente.persona_id.user.last_name.split(" ")[0] if ejercicio_asignado.paciente.persona_id.user.last_name else "",
+                "apellidoMat": ejercicio_asignado.paciente.persona_id.user.last_name.split(" ")[1] if len(ejercicio_asignado.paciente.persona_id.user.last_name.split(" ")) > 1 else "",
                 "fotoUrl": ejercicio_asignado.paciente.persona_id.foto_url
             },
             "ejercicio": {

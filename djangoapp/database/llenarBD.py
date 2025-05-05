@@ -62,7 +62,6 @@ for _ in range(NUM_USUARIOS):
         persona = Persona.objects.create(
             user=user,
             fecha=fake.date_this_century(),
-            nacionalidad=fake.country(),
             telefono=fake.phone_number(),
             foto_url=fake.image_url()
         )

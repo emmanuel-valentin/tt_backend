@@ -109,8 +109,9 @@ def linkPatientToPhysiotherapist(request):
         response = service.linkPatientToPhysiotherapist(request.user.id, data)
 
         return response_api(
+            status="success",
             data=response,
-            status_code=200,
+            status_code=status.HTTP_200_OK,
             error="",
         )
 

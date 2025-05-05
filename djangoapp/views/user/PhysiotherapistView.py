@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from djangoapp.services.user import PhysiotherapistService as service
-from djangoapp.serializers.usersSeralizer import SendFeedbackSerializer
+from djangoapp.serializers.usersSeralizer import SendFeedbackSerializer, LinkIdSerializer, FisioterapeutaSerializer
 
 
 @api_view(['GET'])
@@ -37,7 +37,7 @@ def getPhysiotherapistById(request, id):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def getLinks(request):
+def getAllLinks(request):
     try:
         return response_api(
             data=service.getLinks(request.user.id),
@@ -49,6 +49,96 @@ def getLinks(request):
         return response_api(
             status="error",
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            error={
+                "message": "Error interno del servidor",
+                "details": str(e)
+            }
+        )
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getAcceptedLinks(request):
+    try:
+        return response_api(
+            data=service.getLinks(request.user.id, estado="VINCULADO"),
+            status_code=200,
+            error="",
+        )
+
+    except Exception as e:
+        return response_api(
+            status="error",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            error={
+                "message": "Error interno del servidor",
+                "details": str(e)
+            }
+        )
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getPendingLinks(request):
+    try:
+        return response_api(
+            data=service.getLinks(request.user.id, estado="PENDIENTE"),
+            status_code=200,
+            error="",
+        )
+
+    except Exception as e:
+        return response_api(
+            status="error",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            error={
+                "message": "Error interno del servidor",
+                "details": str(e)
+            }
+        )
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])   
+def aceeptLink(request):
+    serializer = LinkIdSerializer(data=request.data)
+    
+    try:
+        serializer.is_valid(raise_exception=True)
+        link_id = serializer.validated_data['link_id']
+        
+        return response_api(
+            status="success",
+            status_code=status.HTTP_200_OK,
+            data=service.acceptLink(link_id, request.user.id),
+            error="",
+        )
+    except Exception as e:
+        return response_api(
+            status="error",
+            status_code=status.HTTP_400_BAD_REQUEST,
+            error={
+                "message": "Error interno del servidor",
+                "details": str(e)
+            }
+        )
+    
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def rejectLink(request):
+    serializer = LinkIdSerializer(data=request.data)
+    
+    try:
+        serializer.is_valid(raise_exception=True)
+        link_id = serializer.validated_data['link_id']
+        
+        return response_api(
+            status="success",
+            status_code=status.HTTP_200_OK,
+            data=service.rejectLink(link_id, request.user.id),
+            error="",
+        )
+    except Exception as e:
+        return response_api(
+            status="error",
+            status_code=status.HTTP_400_BAD_REQUEST,
             error={
                 "message": "Error interno del servidor",
                 "details": str(e)

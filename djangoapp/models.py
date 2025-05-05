@@ -11,7 +11,6 @@ class Expediente(models.Model):
 
 class Persona(models.Model):
     fecha = models.DateField(null=True)
-    nacionalidad = models.CharField(max_length=100, null=True)
     telefono = models.CharField(max_length=45, null=True)
     foto_url = models.CharField(max_length=255, null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)

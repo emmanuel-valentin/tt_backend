@@ -8,6 +8,7 @@ def getEjercicios():
 
     for ejercicio in ejercicios:
         data = {
+            "id": ejercicio.id,
             "nombre": ejercicio.nombre,
             "tipo": ejercicio.tipo,
             "descripcion": ejercicio.descripcion,

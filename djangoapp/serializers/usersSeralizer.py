@@ -5,13 +5,12 @@ from djangoapp.models import Fisioterapeuta, Persona, User
 class PersonaSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
     fecha = serializers.DateField(required=False)
-    nacionalidad = serializers.CharField(required=False)
     telefono = serializers.CharField(required=False)
-    foto_url = serializers.CharField(required=False)
+    foto_url = serializers.CharField(required=False, allow_null=True)
 
     class Meta:
         model = Persona
-        fields = ['id', 'fecha', 'nacionalidad', 'telefono', 'foto_url']
+        fields = ['id', 'fecha', 'telefono', 'foto_url']
 
 class UsuarioSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
@@ -43,3 +42,6 @@ class LinkPatientToPhysiotherapistSerializer(serializers.Serializer):
 class SendFeedbackSerializer(serializers.Serializer):
     ejercicio_asignado_id = serializers.IntegerField(required=True)
     feedback = serializers.CharField(required=True)
+
+class LinkIdSerializer(serializers.Serializer):
+    link_id = serializers.IntegerField(required=True)
