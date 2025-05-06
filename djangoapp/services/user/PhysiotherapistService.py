@@ -117,13 +117,14 @@ def getLinks(user_id, estado=None):
 def sendFeedback(data, user_id):
     try:
         ejercicio_asignado = EjercicioAsignado.objects.get(id=data["ejercicio_asignado_id"])
-
-        fisioterapeuta = Fisioterapeuta.objects.get(persona_id__user__id=user_id)  # Obtener la instancia de Fisioterapeuta
+        fisioterapeuta = Fisioterapeuta.objects.get(persona_id__user__id=user_id)
 
         feedback = Feedback.objects.create(
-            fisioterapeuta=fisioterapeuta,  # Pasar la instancia en lugar del ID
-            ejercicio_asignado=ejercicio_asignado,  # Pasar la instancia en lugar del ID
-            feedback=data.get("feedback")
+            fisioterapeuta=fisioterapeuta,
+            ejercicio_asignado=ejercicio_asignado,
+            feedback=str(data.get("feedback")),
+            feedback_audio=data.get("audio"),
+            feedback_imagen=data.get("video")
         )
 
         return {"mensaje": "Feedback guardado exitosamente.", "feedback_id": feedback.id}

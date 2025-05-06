@@ -23,7 +23,7 @@ def getEjercicioAsignadoByID(id):
         fisioterapeuta_data = {
             "id": fisioterapeuta.id,
             "persona_id": fisioterapeuta.persona_id.id,
-            "fotoUrl": persona_fisio.foto_url,
+            "fotoUrl": str(persona_fisio.foto_url),
             "nombre": persona_fisio.user.first_name,
             "apellidoPat": persona_fisio.user.last_name.split(" ")[0] if persona_fisio.user.last_name else "",
             "apellidoMat": persona_fisio.user.last_name.split(" ")[1] if len(persona_fisio.user.last_name.split(" ")) > 1 else ""
@@ -35,6 +35,8 @@ def getEjercicioAsignadoByID(id):
         feedbacks.append({
             "id": feedback.id,
             "feedback": feedback.feedback,
+            "feedback_audio": str(feedback.feedback_audio) if feedback.feedback_audio else None,
+            "feedback_imagen": str(feedback.feedback_imagen) if feedback.feedback_imagen else None,
             "fisioterapeuta_id": feedback.fisioterapeuta.id
         })
 
@@ -49,7 +51,7 @@ def getEjercicioAsignadoByID(id):
         "paciente": {
             "id": ejercicio_asignado.paciente.id,
             "persona_id": ejercicio_asignado.paciente.persona_id.id,
-            "fotoUrl": ejercicio_asignado.paciente.persona_id.foto_url,
+            "fotoUrl": str(ejercicio_asignado.paciente.persona_id.foto_url),
             "urlVideoPaciente": ejercicio_asignado.url_video_paciente.url if ejercicio_asignado.url_video_paciente else None,
             "nombre": ejercicio_asignado.paciente.persona_id.user.first_name,
             "apellidoPat": last_name_parts[0] if last_name_parts else "",
@@ -94,6 +96,9 @@ def getEjerciciosAsignados(user_id):
             feedbacks.append({
                 "id": feedback.id,
                 "feedback": feedback.feedback,
+                "feedback_audio": str(feedback.feedback_audio) if feedback.feedback_audio else None,
+                "feedback_imagen": str(feedback.feedback_imagen) if feedback.feedback_imagen else None,
+                "fisioterapeuta_id": feedback.fisioterapeuta.id
             })
 
         # Obtener la vinculación del fisioterapeuta con el paciente
@@ -108,7 +113,7 @@ def getEjerciciosAsignados(user_id):
             fisioterapeuta_data = {
                 "id": fisioterapeuta.id,
                 "persona_id": fisioterapeuta.persona_id.id,
-                "fotoUrl": persona_fisio.foto_url,
+                "fotoUrl": str(persona_fisio.foto_url),
                 "nombre": persona_fisio.user.first_name,
                 "apellidoPat": persona_fisio.user.last_name.split(" ")[0] if persona_fisio.user.last_name else "",
                 "apellidoMat": persona_fisio.user.last_name.split(" ")[1] if len(persona_fisio.user.last_name.split(" ")) > 1 else ""
@@ -125,7 +130,7 @@ def getEjerciciosAsignados(user_id):
             "paciente": {
                 "id": ejercicio_asignado.paciente.id,
                 "persona_id": ejercicio_asignado.paciente.persona_id.id,
-                "fotoUrl": ejercicio_asignado.paciente.persona_id.foto_url,
+                "fotoUrl": str(ejercicio_asignado.paciente.persona_id.foto_url),
                 "urlVideoPaciente": ejercicio_asignado.url_video_paciente.url if ejercicio_asignado.url_video_paciente else None,
                 "nombre": ejercicio_asignado.paciente.persona_id.user.first_name,
                 "apellidoPat": last_name_parts[0] if last_name_parts else "",
@@ -181,7 +186,7 @@ def asignarEjercicio(user, ejercicioID, pacienteID, fechaLimite):
             "nombre": paciente.persona_id.user.first_name,
             "apellidoPat": paciente.persona_id.user.last_name.split(" ")[0] if paciente.persona_id.user.last_name else "",
             "apellidoMat": paciente.persona_id.user.last_name.split(" ")[1] if len(paciente.persona_id.user.last_name.split(" ")) > 1 else "",
-            "fotoUrl": paciente.persona_id.foto_url
+            "fotoUrl": str(paciente.persona_id.foto_url)
         },
         "fisioterapeuta": {
             "id": fisioterapeuta.id if fisioterapeuta else "",
@@ -189,7 +194,7 @@ def asignarEjercicio(user, ejercicioID, pacienteID, fechaLimite):
             "nombre": fisioterapeuta.persona_id.user.first_name if fisioterapeuta else "",
             "apellidoPat": fisioterapeuta.persona_id.user.last_name.split(" ")[0] if fisioterapeuta and fisioterapeuta.persona_id.user.last_name else "",
             "apellidoMat": fisioterapeuta.persona_id.user.last_name.split(" ")[1] if fisioterapeuta and len(fisioterapeuta.persona_id.user.last_name.split(" ")) > 1 else "",
-            "fotoUrl": fisioterapeuta.persona_id.foto_url if fisioterapeuta else ""
+            "fotoUrl": str(fisioterapeuta.persona_id.foto_url) if fisioterapeuta else ""
         }
     }
 
@@ -229,7 +234,7 @@ def actualizarEjercicioAsignado(ejercicioAsignadoID, ejercicioID, pacienteID, nu
                 "nombre": ejercicio_asignado.paciente.persona_id.user.first_name,
                 "apellidoPat": ejercicio_asignado.paciente.persona_id.user.last_name.split(" ")[0] if ejercicio_asignado.paciente.persona_id.user.last_name else "",
                 "apellidoMat": ejercicio_asignado.paciente.persona_id.user.last_name.split(" ")[1] if len(ejercicio_asignado.paciente.persona_id.user.last_name.split(" ")) > 1 else "",
-                "fotoUrl": ejercicio_asignado.paciente.persona_id.foto_url
+                "fotoUrl": str(ejercicio_asignado.paciente.persona_id.foto_url)
             },
             "ejercicio": {
                 "id": ejercicio_asignado.ejercicio.id,
