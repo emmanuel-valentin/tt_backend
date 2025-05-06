@@ -19,7 +19,7 @@ def getPatientById(id):
             "id": paciente.persona_id.id,
             "fecha_nacimiento": paciente.persona_id.fecha,
             "telefono": paciente.persona_id.telefono,
-            "foto_url": paciente.persona_id.foto_url,
+            "foto_url": str(paciente.persona_id.foto_url),
         },
         "usuario": {
             "id": paciente.persona_id.user.id,
