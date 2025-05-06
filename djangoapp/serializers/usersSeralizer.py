@@ -42,6 +42,8 @@ class LinkPatientToPhysiotherapistSerializer(serializers.Serializer):
 class SendFeedbackSerializer(serializers.Serializer):
     ejercicio_asignado_id = serializers.IntegerField(required=True)
     feedback = serializers.CharField(required=True)
+    audio = serializers.FileField(required=False)
+    video = serializers.FileField(required=False)
 
 class LinkIdSerializer(serializers.Serializer):
     link_id = serializers.IntegerField(required=True)

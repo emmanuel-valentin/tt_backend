@@ -81,6 +81,8 @@ class Feedback(models.Model):
     fisioterapeuta = models.ForeignKey(Fisioterapeuta, on_delete=models.CASCADE)
     ejercicio_asignado = models.ForeignKey(EjercicioAsignado, on_delete=models.CASCADE, null=True, blank=True)
     feedback = models.TextField(null=True)
+    feedback_audio = models.FileField(upload_to='storage/feedback/audio', null=True, blank=True)
+    feedback_imagen = models.FileField(upload_to='storage/feedback/imagen', null=True, blank=True)
 
     class Meta:
         db_table = 'Feedback'
