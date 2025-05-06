@@ -12,7 +12,7 @@ class Expediente(models.Model):
 class Persona(models.Model):
     fecha = models.DateField(null=True)
     telefono = models.CharField(max_length=45, null=True)
-    foto_url = models.CharField(max_length=255, null=True)
+    foto_url = models.FileField(upload_to='storage/profile/photo/', null=True, blank=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
 
     class Meta:
@@ -41,7 +41,6 @@ class ExpedienteHasPaciente(models.Model):
     class Meta:
         db_table = 'Expediente_Has_Paciente'
         unique_together = ('expediente', 'paciente')
-
 
 class Estado(models.Model):
     estado = models.CharField(max_length=20, null=True)
@@ -73,7 +72,7 @@ class EjercicioAsignado(models.Model):
     estado = models.ForeignKey(Estado, on_delete=models.CASCADE)
     fecha_asignada = models.DateTimeField(null=True)
     fecha_limite = models.DateTimeField(null=True)
-    url_video_paciente = models.FileField(upload_to='storage/', null=True, blank=True)
+    url_video_paciente = models.FileField(upload_to='storage/exercise/assigment/', null=True, blank=True)
 
     class Meta:
         db_table = 'Ejercicio_Asignado'
