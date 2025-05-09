@@ -42,8 +42,10 @@ def getEjercicioAsignadoByID(id):
 
     data = {
         "id": ejercicio_asignado.id,
+        "ejercicioId": ejercicio_asignado.ejercicio.id,
         "nombre": ejercicio_asignado.ejercicio.nombre,
         "descripcion": ejercicio_asignado.ejercicio.descripcion,
+        "tipo": ejercicio_asignado.ejercicio.tipo,
         "fechaAsignada": ejercicio_asignado.fecha_asignada,
         "fechaLimite": ejercicio_asignado.fecha_limite,
         "estado": ejercicio_asignado.estado.estado,
@@ -122,7 +124,9 @@ def getEjerciciosAsignados(user_id):
         data = {
             "id": ejercicio_asignado.id,
             "nombre": ejercicio_asignado.ejercicio.nombre,
+            "ejercicioId": ejercicio_asignado.ejercicio.id,
             "descripcion": ejercicio_asignado.ejercicio.descripcion,
+            "tipo": ejercicio_asignado.ejercicio.tipo,
             "fechaAsignada": ejercicio_asignado.fecha_asignada,
             "fechaLimite": ejercicio_asignado.fecha_limite,
             "estado": ejercicio_asignado.estado.estado,
@@ -176,7 +180,9 @@ def asignarEjercicio(user, ejercicioID, pacienteID, fechaLimite):
     return {
         "id": ejercicio_asignado.id,
         "nombre": ejercicio.nombre,
+        "ejercicioId": ejercicio.id,
         "descripcion": ejercicio.descripcion,
+        "tipo": ejercicio.tipo,
         "fechaAsignada": ejercicio_asignado.fecha_asignada,
         "fechaLimite": ejercicio_asignado.fecha_limite,
         "estado": ejercicio_asignado.estado.estado,
@@ -228,6 +234,8 @@ def actualizarEjercicioAsignado(ejercicioAsignadoID, ejercicioID, pacienteID, nu
             "fechaAsignada": ejercicio_asignado.fecha_asignada,
             "fechaLimite": ejercicio_asignado.fecha_limite,
             "estado": ejercicio_asignado.estado.estado,
+            "ejercicioId": ejercicio_asignado.ejercicio.id,
+            "tipo": ejercicio_asignado.ejercicio.tipo,
             "paciente": {
                 "id": ejercicio_asignado.paciente.id,
                 "persona_id": ejercicio_asignado.paciente.persona_id.id,
