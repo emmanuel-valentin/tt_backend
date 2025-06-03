@@ -16,9 +16,9 @@ def getPhysiotherapistById(id):
         "rol": Role.PHYSIOTHERAPIST.to_json(),
         "persona": {
             "id": fisioterapeuta.persona_id.id,
-            "fecha_nacimiento": fisioterapeuta.persona_id.fecha,
+            "fecha": fisioterapeuta.persona_id.fecha,
             "telefono": fisioterapeuta.persona_id.telefono,
-            "foto_url": fisioterapeuta.persona_id.foto_url,
+            "foto_url": str(fisioterapeuta.persona_id.foto_url),
         },
         "usuario": {
             "id": fisioterapeuta.persona_id.user.id,
@@ -48,8 +48,6 @@ def updatePhysiotherapist(data):
                 fisioterapeuta.persona_id.fecha = persona_data["fecha"]
             if "telefono" in persona_data:
                 fisioterapeuta.persona_id.telefono = persona_data["telefono"]
-            if "foto_url" in persona_data:
-                fisioterapeuta.persona_id.foto_url = persona_data["foto_url"]
             fisioterapeuta.persona_id.save()
 
         # Actualizar los datos del usuario relacionado
@@ -101,6 +99,7 @@ def getLinks(user_id, estado=None):
         for vinculacion in vinculaciones:
             if vinculacion.paciente and vinculacion.paciente.persona_id:
                 paciente_data = getPatientById(vinculacion.paciente.persona_id.id)
+                # The profile photo is already handled in getPatientById as str(paciente.persona_id.foto_url)
                 # Añadir información de vinculación
                 paciente_data["vinculacion_id"] = vinculacion.id
                 paciente_data["vinculacion_estado"] = vinculacion.estado

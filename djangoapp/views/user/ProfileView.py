@@ -3,6 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 
 from djangoapp.serializers.profileSeralizer import SubirFotoDePerfilSerializer
+from djangoapp.serializers.usersSeralizer import FisioterapeutaSerializer, PacienteSerializer
 from djangoapp.services.user import UserService as service
 from djangoapp.services.user import ProfileService as serviceProfile
 from djangoapp.utils.api_response import response_api
